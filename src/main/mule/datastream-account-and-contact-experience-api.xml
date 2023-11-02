@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd ">
+     <flow name="datastream-account-and-contact-experience-api-main">
+        <http:listener config-ref="datastream-account-and-contact-experience-api-httpListenerConfig" path="${http.base.path}">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body><![CDATA[#[payload]]]></http:body>
+                <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:router config-ref="datastream-account-and-contact-experience-api-config" />
+		<error-handler ref="api-kit-error-handler" />
+    </flow>
+    <flow name="get:\accounts\(accountId):datastream-account-and-contact-experience-api-config">
+        <logger level="INFO" doc:name="Start of the flow Logger" doc:id="bd1026d3-337b-44ea-88bd-7ca0c3bef784" message='#[correlationId ++ "Start of Get Accounts based on Account Id flow"]'/>
+		<ee:transform doc:name="Account Id">
+            <ee:variables>
+                <ee:set-variable variableName="accountId">attributes.uriParams.'accountId'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+		<flow-ref doc:name="imp-process-get-accounts-SubFlow" doc:id="35e43560-c6b7-487b-87bb-fe4eb555a0be" name="imp-process-get-accounts-SubFlow"/>
+		<logger level="INFO" doc:name="End of the flow Logger" doc:id="7a6829d8-e19d-4e93-a6c5-4242a6f55ac3" message='#[correlationId ++ "Start of Get Accounts based on Account Id flow"]'/>
+		<error-handler ref="business-error-handler" />
+    </flow>
+    <flow name="get:\contacts\(contactId):datastream-account-and-contact-experience-api-config">
+		<logger level="INFO" doc:name="Start of the flow Logger" doc:id="00468585-8fd3-491d-aa53-5a530535efb9" message='#[correlationId ++ "Start of Get Contacts based on Contact Id flow"]' />
+		<ee:transform doc:name="Contact Id" doc:id="23a7433d-d171-4765-9b87-329cce79b63a">
+			<ee:variables>
+				<ee:set-variable variableName="contactId"><![CDATA[attributes.uriParams.'contactId']]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<flow-ref doc:name="imp-process-get-contact-SubFlow" doc:id="2cc103ac-0b4d-4266-b7c4-b5ac56fd7835" name="imp-process-get-contact-SubFlow"/>
+		<logger level="INFO" doc:name="End of the flow Logger" doc:id="6147c207-65af-4dad-a396-5981fcb7cb69" message='#[correlationId ++ "End of Get Contacts based on Contact Id flow"]'/>
+		<error-handler ref="business-error-handler" />
+    </flow>
+    <flow name="post:\accounts:application\json:datastream-account-and-contact-experience-api-config">
+        <logger level="INFO" doc:name="Start of the flow Logger" doc:id="26f51d3a-a57f-4a37-b975-7769c1ccfb28" message='#[correlationId ++ "Start of Post Accounts flow"]' />
+		<flow-ref doc:name="imp-process-post-accounts-SubFlow" doc:id="c3f36513-8488-43d8-8638-2472073f7822" name='imp-process-post-accounts-SubFlow'/>
+		<logger level="INFO" doc:name="End of the flow Logger" doc:id="4ccc91a0-3e18-477c-925f-6eabac47105f" message='#[correlationId ++ "End of Post Accounts flow"]'/>
+		<error-handler ref="business-error-handler" />
+    </flow>
+    <flow name="post:\contacts:application\json:datastream-account-and-contact-experience-api-config">
+		<logger level="INFO" doc:name="Start of the flow Logger" doc:id="fd48703b-04cc-4343-a99a-c7e20aaf89df" message='#[correlationId ++ "Start of Post Contact flow"]' />
+		<flow-ref doc:name="imp-process-post-contact-SubFlow" doc:id="ead78d8b-8088-485d-a27e-6a93f80fbfc7" name="imp-process-post-contact-SubFlow"/>
+		<logger level="INFO" doc:name="End of the flow Logger" doc:id="fabc74f6-b4bc-423f-9cae-a8c43f3e0c04" message='#[correlationId ++ "End of Post Contact flow"]'/>
+		<error-handler ref="business-error-handler" />
+    </flow>
+    
+    <flow name="datastream-account-and-contact-process-api-console">
+        <http:listener config-ref="datastream-account-and-contact-experience-api-httpListenerConfig" path="/console/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body>#[payload]</http:body>
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:console config-ref="datastream-account-and-contact-experience-api-config" />
+        <error-handler>
+            <on-error-propagate type="APIKIT:NOT_FOUND">
+                <ee:transform>
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Resource not found"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">404</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+        </error-handler>
+    </flow>
+    
+</mule>

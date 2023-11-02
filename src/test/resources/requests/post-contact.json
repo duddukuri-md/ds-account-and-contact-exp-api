@@ -1,0 +1,12 @@
+{
+  "displayStatus": "Action Required",
+  "statuses": [
+    "Active"
+  ],
+  "serviceId": 0,
+  "cancelledDays": 0,
+  "purpose": "Mortgage Payments",
+  "establishmentScheme": "AuthorisedPaymentMandate",
+  "page": 1,
+  "pageSize": 50
+}

@@ -1,12 +1,6 @@
 {
-  "displayStatus": "Action Required",
-  "statuses": [
-    "Active"
-  ],
-  "serviceId": 0,
-  "cancelledDays": 0,
-  "purpose": "Mortgage Payments",
-  "establishmentScheme": "AuthorisedPaymentMandate",
-  "page": 1,
-  "pageSize": 50
+  "Name": "Jane Smith",
+  "personalEmail__c": "jane.smith@email.com",
+  "BillingAddress": "456 Elm St, City, State",
+  "Description": "Sample Contact"
 }
